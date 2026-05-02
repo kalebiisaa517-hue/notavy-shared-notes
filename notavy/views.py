@@ -7,12 +7,14 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import UserSerializer, NoteSerializer
 from .models import Note, Follow
 from django.shortcuts import get_object_or_404
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
+	parser_classes = [MultiPartParser, FormParser, JSONParser]
 	lookup_field = 'username'
 	
 	def get_permissions(self):
@@ -20,9 +22,15 @@ class UserViewSet(viewsets.ModelViewSet):
 			return [AllowAny()]
 		return [IsAuthenticated()]
 	
-	@action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+	@action(detail=False, methods=['get', 'patch'], permission_classes=[IsAuthenticated])
 	def me(self, request):
-		serializer = self.get_serializer(request.user)
+		if request.method == 'PATCH':
+			serializer = self.get_serializer(request.user, data=request.data, partial=True)
+			serializer.is_valid(raise_exception=True)
+			serializer.save()
+		else:
+			serializer = self.get_serializer(request.user)
+		
 		return Response(serializer.data)
 	
 	@action(detail=False, methods=['get', 'patch'], permission_classes=[IsAuthenticated])

@@ -13,6 +13,7 @@ class User(AbstractUser):
 		DARK = 'DRK', 'dark'
 		LIGHT = 'LGT', 'light'
 	
+	avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
 	email = models.EmailField(unique=True)
 	theme = models.CharField(
 		max_length=3,

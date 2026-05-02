@@ -6,6 +6,7 @@ class UserSerializer(serializers.ModelSerializer):
 	followers = serializers.SerializerMethodField()
 	follow_requests = serializers.SerializerMethodField()
 	follow_requested = serializers.SerializerMethodField()
+	avatar = serializers.ImageField(required=False, allow_none=True)
 	
 	def get_following(self, obj):
 		return obj.rel_from.filter(accepted=True).values_list('user_to__username', flat=True) or []
